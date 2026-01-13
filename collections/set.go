@@ -5,6 +5,14 @@ import "iter"
 // Set represents an unordered collection of unique elements.
 type Set[T comparable] map[T]struct{}
 
+func NewSet[T comparable](sub []T) Set[T] {
+	newSet := make(Set[T])
+	for _, v := range sub {
+		newSet.Add(v)
+	}
+	return newSet
+}
+
 // Add inserts a value into the set.
 func (s *Set[T]) Add(v T) {
 	(*s)[v] = struct{}{}
