@@ -36,16 +36,13 @@ func (a *GoQueue[T]) Len() int {
 
 func NewGoQueue[T Comparable](queue QueueLike[T], buffer int) *GoQueue[T] {
 	mutex := &sync.Mutex{}
-	goQueue := &GoQueue[T]{
+	return &GoQueue[T]{
 		queue:  queue,
 		mutex:  mutex,
 		condF:  sync.NewCond(mutex),
+		confR:  sync.NewCond(mutex),
 		buffer: buffer,
 	}
-	if buffer != 0 {
-		goQueue.confR = sync.NewCond(mutex)
-	}
-	return goQueue
 }
 
 type GoStack[T any] struct {
@@ -88,14 +85,11 @@ func (a *GoStack[T]) Pek() T {
 
 func NewGoStack[T any](stack StackLike[T], buffer int) *GoStack[T] {
 	mutex := &sync.RWMutex{}
-	goStack := &GoStack[T]{
+	return &GoStack[T]{
 		stack:  stack,
 		mutex:  mutex,
 		condF:  sync.NewCond(mutex),
 		buffer: buffer,
+		confR:  sync.NewCond(mutex),
 	}
-	if buffer != 0 {
-		goStack.confR = sync.NewCond(mutex)
-	}
-	return goStack
 }
