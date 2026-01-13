@@ -1,8 +1,8 @@
 package collections
 
-import "sort"
+import "container/heap"
 
-// HeapType defines the ordering strategy of a Heap.
+// HeapType defines the ordering strategy of a rHeap.
 type HeapType uint
 
 const (
@@ -13,22 +13,22 @@ const (
 	MaxHeap
 )
 
-// Heap is a generic heap data structure parameterized by a Comparable type.
+// rHeap is a generic heap data structure parameterized by a Comparable type.
 //
 // The ordering of elements is determined by the HeapType (MinHeap or MaxHeap).
-type Heap[T Comparable] struct {
+type rHeap[T Comparable] struct {
 	heap     []T
 	heapType HeapType
 }
 
 // Len returns the number of elements in the heap.
-func (h *Heap[T]) Len() int {
+func (h *rHeap[T]) Len() int {
 	return len(h.heap)
 }
 
 // Less reports whether the element with index i should sort before
 // the element with index j, according to the heap type.
-func (h *Heap[T]) Less(i, j int) bool {
+func (h *rHeap[T]) Less(i, j int) bool {
 	if h.heapType == MaxHeap {
 		return h.heap[i].Lt(h.heap[j])
 	}
@@ -36,18 +36,18 @@ func (h *Heap[T]) Less(i, j int) bool {
 }
 
 // Swap swaps the elements with indexes i and j.
-func (h *Heap[T]) Swap(i, j int) {
+func (h *rHeap[T]) Swap(i, j int) {
 	h.heap[i], h.heap[j] = h.heap[j], h.heap[i]
 }
 
 // Push inserts a new element into the heap.
-func (h *Heap[T]) Push(t T) {
-	h.heap = append(h.heap, t)
-	sort.Sort(h)
+func (h *rHeap[T]) Push(t any) {
+	typedT := t.(T)
+	h.heap = append(h.heap, typedT)
 }
 
 // Pop removes and returns the top-priority element from the heap.
-func (h *Heap[T]) Pop() T {
+func (h *rHeap[T]) Pop() any {
 	old := h.heap
 	n := len(old)
 	x := old[n-1]
@@ -55,32 +55,35 @@ func (h *Heap[T]) Pop() T {
 	return x
 }
 
-// NewHeap creates and returns a new Heap with the given HeapType.
-func NewHeap[T Comparable](heapType HeapType) *Heap[T] {
-	return &Heap[T]{
+// newHeap creates and returns a new rHeap with the given HeapType.
+func newHeap[T Comparable](heapType HeapType) *rHeap[T] {
+	return &rHeap[T]{
 		heap:     make([]T, 0),
 		heapType: heapType,
 	}
 }
 
-// PriorityQueue is a queue-like abstraction backed by a Heap.
+// PriorityQueue is a queue-like abstraction backed by a rHeap.
 type PriorityQueue[T Comparable] struct {
-	heap *Heap[T]
+	heap *rHeap[T]
 }
 
 // Enqueue inserts an element into the priority queue.
 func (p *PriorityQueue[T]) Enqueue(t T) {
-	p.heap.Push(t)
+	heap.Push(p.heap, t)
 }
 
 // Dequeue removes and returns the highest-priority element.
 func (p *PriorityQueue[T]) Dequeue() T {
-	return p.heap.Pop()
+	t := heap.Pop(p.heap).(T)
+	return t
 }
 
 // NewPriorityQueue creates a new PriorityQueue using the given HeapType.
 func NewPriorityQueue[T Comparable](heapType HeapType) *PriorityQueue[T] {
+	h := newHeap[T](heapType)
+	heap.Init(h)
 	return &PriorityQueue[T]{
-		heap: NewHeap[T](heapType),
+		heap: h,
 	}
 }

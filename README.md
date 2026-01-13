@@ -107,27 +107,6 @@ for v := range s.Iter() {
 }
 ````
 
-### Dequeue (Double-Ended Queue)
-``Dequeue[T]`` is a doubly-linked deque supporting insertion and removal at both ends.
-#### Features
-- Push and pop from both left and right
-- Peek operations
-- Safe indexed access
-- Forward and reverse iteration (with optional indices)
-
-````go
-var d collections.Dequeue[MyComparable]
-
-d.Push(a)
-d.PushLeft(b)
-
-right := d.Pop()
-left := d.PopLeft()
-
-for v := range d.IterRev() {
-    _ = v
-}
-````
 ### Stack
 
 ``Stack[T]`` is a LIFO data structure implemented as a thin wrapper around ``Dequeue[T]``.

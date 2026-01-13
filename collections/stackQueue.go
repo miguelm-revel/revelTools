@@ -1,50 +1,109 @@
 package collections
 
+import (
+	"container/list"
+	"iter"
+)
+
 // Stack is a LIFO data structure backed by a Dequeue.
 type Stack[T Comparable] struct {
-	dequeue *Dequeue[T]
+	dequeue *list.List
+}
+
+func (s *Stack[V]) Iter() iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for s.dequeue.Len() > 0 {
+			el := s.Pop()
+			if !yield(el) {
+				return
+			}
+		}
+	}
+}
+
+func (s *Stack[V]) Iter2() iter.Seq2[int, V] {
+	return func(yield func(int, V) bool) {
+		idx := 0
+		for s.dequeue.Len() > 0 {
+			el := s.Pop()
+			if !yield(idx, el) {
+				return
+			}
+			idx++
+		}
+	}
 }
 
 // NewStack creates and returns an empty Stack.
-func NewStack[T Comparable]() Stack[T] {
-	return Stack[T]{
-		dequeue: &Dequeue[T]{},
+func NewStack[T Comparable]() *Stack[T] {
+	dequeue := list.New()
+	return &Stack[T]{
+		dequeue: dequeue,
 	}
 }
 
 // Push adds an element to the top of the stack.
 func (s *Stack[T]) Push(v T) {
-	s.dequeue.Push(v)
+	s.dequeue.PushBack(v)
 }
 
 // Pop removes and returns the top element of the stack.
 func (s *Stack[T]) Pop() T {
-	return s.dequeue.Pop()
+	el := s.dequeue.Back()
+	s.dequeue.Remove(el)
+	return el.Value.(T)
 }
 
 // Pek returns the top element of the stack without removing it.
 func (s *Stack[T]) Pek() T {
-	return s.dequeue.Pek()
+	return s.dequeue.Back().Value.(T)
 }
 
 // Queue is a FIFO data structure backed by a Dequeue.
 type Queue[T Comparable] struct {
-	dequeue *Dequeue[T]
+	dequeue *list.List
 }
 
 // NewQueue creates and returns an empty Queue.
-func NewQueue[T Comparable]() Queue[T] {
-	return Queue[T]{
-		dequeue: &Dequeue[T]{},
+func NewQueue[T Comparable]() *Queue[T] {
+	dequeue := list.New()
+	return &Queue[T]{
+		dequeue: dequeue,
 	}
 }
 
 // Enqueue adds an element to the end of the queue.
 func (q *Queue[T]) Enqueue(v T) {
-	q.dequeue.Push(v)
+	q.dequeue.PushBack(v)
 }
 
 // Dequeue removes and returns the front element of the queue.
 func (q *Queue[T]) Dequeue() T {
-	return q.dequeue.PopLeft()
+	el := q.dequeue.Front()
+	q.dequeue.Remove(el)
+	return el.Value.(T)
+}
+
+func (s *Queue[V]) Iter() iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for s.dequeue.Len() > 0 {
+			el := s.Dequeue()
+			if !yield(el) {
+				return
+			}
+		}
+	}
+}
+
+func (s *Queue[V]) Iter2() iter.Seq2[int, V] {
+	return func(yield func(int, V) bool) {
+		idx := 0
+		for s.dequeue.Len() > 0 {
+			el := s.Dequeue()
+			if !yield(idx, el) {
+				return
+			}
+			idx++
+		}
+	}
 }
