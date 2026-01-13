@@ -3,11 +3,11 @@ package collections
 import "container/heap"
 
 // HeapType defines the ordering strategy of a rHeap.
-type HeapType uint
+type heapType uint
 
 const (
 	// MinHeap orders elements so that the smallest element has the highest priority.
-	MinHeap HeapType = iota
+	MinHeap heapType = iota
 
 	// MaxHeap orders elements so that the largest element has the highest priority.
 	MaxHeap
@@ -18,7 +18,7 @@ const (
 // The ordering of elements is determined by the HeapType (MinHeap or MaxHeap).
 type rHeap[T Comparable] struct {
 	heap     []T
-	heapType HeapType
+	heapType heapType
 }
 
 // Len returns the number of elements in the heap.
@@ -56,7 +56,7 @@ func (h *rHeap[T]) Pop() any {
 }
 
 // newHeap creates and returns a new rHeap with the given HeapType.
-func newHeap[T Comparable](heapType HeapType) *rHeap[T] {
+func newHeap[T Comparable](heapType heapType) *rHeap[T] {
 	return &rHeap[T]{
 		heap:     make([]T, 0),
 		heapType: heapType,
@@ -80,7 +80,7 @@ func (p *PriorityQueue[T]) Dequeue() T {
 }
 
 // NewPriorityQueue creates a new PriorityQueue using the given HeapType.
-func NewPriorityQueue[T Comparable](heapType HeapType) *PriorityQueue[T] {
+func NewPriorityQueue[T Comparable](heapType heapType) *PriorityQueue[T] {
 	h := newHeap[T](heapType)
 	heap.Init(h)
 	return &PriorityQueue[T]{
