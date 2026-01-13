@@ -2,21 +2,26 @@ package collections
 
 import "iter"
 
+// Set represents an unordered collection of unique elements.
 type Set[T comparable] map[T]struct{}
 
+// Add inserts a value into the set.
 func (s *Set[T]) Add(v T) {
 	(*s)[v] = struct{}{}
 }
 
+// Has reports whether the value exists in the set.
 func (s *Set[T]) Has(v T) bool {
 	_, ok := (*s)[v]
 	return ok
 }
 
+// Del removes a value from the set.
 func (s *Set[T]) Del(v T) {
 	delete(*s, v)
 }
 
+// Union returns a new set containing all elements from both sets.
 func (s *Set[T]) Union(set Set[T]) Set[T] {
 	result := make(Set[T])
 	for it := range s.Iter() {
@@ -28,6 +33,8 @@ func (s *Set[T]) Union(set Set[T]) Set[T] {
 	return result
 }
 
+// Intersection returns a new set containing only elements
+// present in both sets.
 func (s *Set[T]) Intersection(set Set[T]) Set[T] {
 	result := make(Set[T])
 	for it := range s.Iter() {
@@ -38,9 +45,10 @@ func (s *Set[T]) Intersection(set Set[T]) Set[T] {
 	return result
 }
 
+// Iter returns a forward iterator over the set.
 func (s *Set[T]) Iter() iter.Seq[T] {
 	return func(yield func(T) bool) {
-		for v, _ := range *s {
+		for v := range *s {
 			if !yield(v) {
 				return
 			}
@@ -48,10 +56,11 @@ func (s *Set[T]) Iter() iter.Seq[T] {
 	}
 }
 
+// Iter2 returns an indexed iterator over the set.
 func (s *Set[T]) Iter2() iter.Seq2[int, T] {
 	return func(yield func(int, T) bool) {
 		idx := 0
-		for v, _ := range *s {
+		for v := range *s {
 			if !yield(idx, v) {
 				return
 			}
@@ -60,6 +69,7 @@ func (s *Set[T]) Iter2() iter.Seq2[int, T] {
 	}
 }
 
+// Len returns the number of elements in the set.
 func (s *Set[T]) Len() int {
 	return len(*s)
 }

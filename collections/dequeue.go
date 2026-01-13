@@ -10,12 +10,15 @@ type dequeueItem[T Comparable] struct {
 	prev  *dequeueItem[T]
 }
 
+// Dequeue is a double-ended queue supporting insertion and
+// removal from both ends.
 type Dequeue[T Comparable] struct {
 	first *dequeueItem[T]
 	last  *dequeueItem[T]
 	len   int
 }
 
+// Len returns the number of elements in the dequeue.
 func (d *Dequeue[T]) Len() int {
 	return d.len
 }
@@ -37,6 +40,7 @@ func (d *Dequeue[T]) Swap(i, j int) {
 	right.next = left
 }
 
+// Push appends an element to the right end.
 func (d *Dequeue[T]) Push(item T) {
 	if d.last == nil {
 		dit := &dequeueItem[T]{
@@ -55,6 +59,7 @@ func (d *Dequeue[T]) Push(item T) {
 	d.len++
 }
 
+// PushLeft prepends an element to the left end.
 func (d *Dequeue[T]) PushLeft(item T) {
 	if d.first == nil {
 		dit := &dequeueItem[T]{
@@ -73,6 +78,7 @@ func (d *Dequeue[T]) PushLeft(item T) {
 	d.len++
 }
 
+// Pop removes and returns the element from the right end.
 func (d *Dequeue[T]) Pop() T {
 	last := d.last
 	if last != nil {
@@ -90,6 +96,7 @@ func (d *Dequeue[T]) Pop() T {
 	}
 }
 
+// PopLeft removes and returns the element from the left end.
 func (d *Dequeue[T]) PopLeft() T {
 	first := d.first
 	if first != nil {
@@ -107,14 +114,17 @@ func (d *Dequeue[T]) PopLeft() T {
 	}
 }
 
+// Pek returns the rightmost element without removing it.
 func (d *Dequeue[T]) Pek() T {
 	return d.last.value
 }
 
+// PekLeft returns the leftmost element without removing it.
 func (d *Dequeue[T]) PekLeft() T {
 	return d.first.value
 }
 
+// Iter returns a forward iterator over the dequeue.
 func (d *Dequeue[T]) Iter() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		current := d.first
@@ -127,6 +137,7 @@ func (d *Dequeue[T]) Iter() iter.Seq[T] {
 	}
 }
 
+// IterRev returns a reverse iterator over the dequeue.
 func (d *Dequeue[T]) IterRev() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		current := d.last
@@ -139,6 +150,7 @@ func (d *Dequeue[T]) IterRev() iter.Seq[T] {
 	}
 }
 
+// Iter2 returns an indexed forward iterator.
 func (d *Dequeue[T]) Iter2() iter.Seq2[int, T] {
 	return func(yield func(int, T) bool) {
 		current := d.first
@@ -153,6 +165,7 @@ func (d *Dequeue[T]) Iter2() iter.Seq2[int, T] {
 	}
 }
 
+// Iter2Rev returns an indexed reverse iterator.
 func (d *Dequeue[T]) Iter2Rev() iter.Seq2[int, T] {
 	return func(yield func(int, T) bool) {
 		current := d.last
@@ -167,6 +180,7 @@ func (d *Dequeue[T]) Iter2Rev() iter.Seq2[int, T] {
 	}
 }
 
+// At returns the element at index i and whether it exists.
 func (d *Dequeue[T]) At(i int) (T, bool) {
 	idx := 0
 	current := d.first
@@ -189,11 +203,13 @@ func (d *Dequeue[T]) at(i int) *dequeueItem[T] {
 	return current
 }
 
+// Cycle represents a circular doubly-linked list.
 type Cycle[T Comparable] struct {
 	first *dequeueItem[T]
 	len   int
 }
 
+// Iter returns a forward infinite iterator over the cycle.
 func (c *Cycle[V]) Iter() iter.Seq[V] {
 	return func(yield func(V) bool) {
 		current := c.first
@@ -209,6 +225,7 @@ func (c *Cycle[V]) Iter() iter.Seq[V] {
 	}
 }
 
+// IterRev returns a reverse infinite iterator over the cycle.
 func (c *Cycle[V]) IterRev() iter.Seq[V] {
 	return func(yield func(V) bool) {
 		current := c.first
@@ -224,6 +241,7 @@ func (c *Cycle[V]) IterRev() iter.Seq[V] {
 	}
 }
 
+// Push inserts an element into the cycle.
 func (c *Cycle[T]) Push(v T) {
 	it := dequeueItem[T]{
 		value: v,
@@ -242,6 +260,7 @@ func (c *Cycle[T]) Push(v T) {
 	c.len++
 }
 
+// Pop removes and returns the current element from the cycle.
 func (c *Cycle[T]) Pop() (v T) {
 	if c.first == nil {
 		return
