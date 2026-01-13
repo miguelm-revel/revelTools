@@ -59,6 +59,10 @@ func (s *Stack[T]) Pek() T {
 	return s.dequeue.Back().Value.(T)
 }
 
+func (s *Stack[T]) Len() int {
+	return s.dequeue.Len()
+}
+
 // Queue is a FIFO data structure backed by a Dequeue.
 type Queue[T Comparable] struct {
 	dequeue *list.List
@@ -73,21 +77,25 @@ func NewQueue[T Comparable]() *Queue[T] {
 }
 
 // Enqueue adds an element to the end of the queue.
-func (q *Queue[T]) Enqueue(v T) {
-	q.dequeue.PushBack(v)
+func (c *Queue[T]) Enqueue(v T) {
+	c.dequeue.PushBack(v)
 }
 
 // Dequeue removes and returns the front element of the queue.
-func (q *Queue[T]) Dequeue() T {
-	el := q.dequeue.Front()
-	q.dequeue.Remove(el)
+func (c *Queue[T]) Dequeue() T {
+	el := c.dequeue.Front()
+	c.dequeue.Remove(el)
 	return el.Value.(T)
 }
 
-func (s *Queue[V]) Iter() iter.Seq[V] {
+func (c *Queue[T]) Len() int {
+	return c.dequeue.Len()
+}
+
+func (c *Queue[V]) Iter() iter.Seq[V] {
 	return func(yield func(V) bool) {
-		for s.dequeue.Len() > 0 {
-			el := s.Dequeue()
+		for c.dequeue.Len() > 0 {
+			el := c.Dequeue()
 			if !yield(el) {
 				return
 			}
@@ -95,11 +103,11 @@ func (s *Queue[V]) Iter() iter.Seq[V] {
 	}
 }
 
-func (s *Queue[V]) Iter2() iter.Seq2[int, V] {
+func (c *Queue[V]) Iter2() iter.Seq2[int, V] {
 	return func(yield func(int, V) bool) {
 		idx := 0
-		for s.dequeue.Len() > 0 {
-			el := s.Dequeue()
+		for c.dequeue.Len() > 0 {
+			el := c.Dequeue()
 			if !yield(idx, el) {
 				return
 			}

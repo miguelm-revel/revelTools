@@ -1,6 +1,8 @@
 package collections
 
-import "container/heap"
+import (
+	"container/heap"
+)
 
 // HeapType defines the ordering strategy of a rHeap.
 type heapType uint
@@ -77,6 +79,10 @@ func (p *PriorityQueue[T]) Enqueue(t T) {
 func (p *PriorityQueue[T]) Dequeue() T {
 	t := heap.Pop(p.heap).(T)
 	return t
+}
+
+func (p *PriorityQueue[T]) Len() int {
+	return p.heap.Len()
 }
 
 // NewPriorityQueue creates a new PriorityQueue using the given HeapType.

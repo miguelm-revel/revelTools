@@ -22,10 +22,13 @@ type Comparable interface {
 type QueueLike[T any] interface {
 	Enqueue(T)
 	Dequeue() T
+	Len() int
 }
 
 // StackLike represents a LIFO data structure.
 type StackLike[T any] interface {
 	Push(T)
 	Pop() T
+	Pek() T
+	Len() int
 }
