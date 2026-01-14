@@ -55,7 +55,7 @@ func (s *Stack[T]) Pop() T {
 }
 
 // Pek returns the top element of the stack without removing it.
-func (s *Stack[T]) Pek() T {
+func (s *Stack[T]) Peek() T {
 	return s.dequeue.Back().Value.(T)
 }
 

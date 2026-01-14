@@ -29,6 +29,6 @@ type QueueLike[T any] interface {
 type StackLike[T any] interface {
 	Push(T)
 	Pop() T
-	Pek() T
+	Peek() T
 	Len() int
 }
