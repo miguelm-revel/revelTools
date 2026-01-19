@@ -3,6 +3,7 @@ package collections
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"iter"
 )
 
@@ -14,27 +15,62 @@ func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 		*s = nil
 		return nil
 	}
-	raw := make([]T, 0)
-	if err := json.Unmarshal(bts, &raw); err != nil {
+
+	dec := json.NewDecoder(bytes.NewReader(bts))
+
+	tok, err := dec.Token()
+	if err != nil {
 		return err
 	}
-	*s = make(Set[T])
-	for _, it := range raw {
-		s.Add(it)
+	delim, ok := tok.(json.Delim)
+	if !ok || delim != '[' {
+		return fmt.Errorf("Set: expected JSON array")
 	}
-	return nil
+
+	if *s == nil {
+		*s = make(Set[T])
+	} else {
+		for k := range *s {
+			delete(*s, k)
+		}
+	}
+
+	for dec.More() {
+		var v T
+		if err = dec.Decode(&v); err != nil {
+			return err
+		}
+		s.Add(v)
+	}
+
+	_, err = dec.Token()
+	return err
 }
 
 func (s *Set[T]) MarshalJSON() ([]byte, error) {
-	if s != nil {
-		sl := make([]T, s.Len())
-		for i, element := range s.Iter2() {
-			sl[i] = element
-		}
-		return json.Marshal(sl)
-	} else {
+	if s == nil || *s == nil {
 		return []byte("null"), nil
 	}
+
+	var buf bytes.Buffer
+	buf.WriteByte('[')
+
+	first := true
+	for v := range *s {
+		if !first {
+			buf.WriteByte(',')
+		}
+		first = false
+
+		b, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(b)
+	}
+
+	buf.WriteByte(']')
+	return buf.Bytes(), nil
 }
 
 func NewSet[T comparable](sub []T) Set[T] {
