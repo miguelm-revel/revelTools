@@ -1,9 +1,36 @@
 package collections
 
-import "iter"
+import (
+	"bytes"
+	"encoding/json"
+	"iter"
+)
 
 // Set represents an unordered collection of unique elements.
 type Set[T comparable] map[T]struct{}
+
+func (s *Set[T]) UnmarshalJSON(bts []byte) error {
+	if bytes.Equal(bts, []byte("null")) {
+		*s = nil
+		return nil
+	}
+	raw := make([]T, 0)
+	if err := json.Unmarshal(bts, &raw); err != nil {
+		return err
+	}
+	for _, it := range raw {
+		s.Add(it)
+	}
+	return nil
+}
+
+func (s *Set[T]) MarshalJSON() ([]byte, error) {
+	sl := make([]T, s.Len())
+	for i, element := range s.Iter2() {
+		sl[i] = element
+	}
+	return json.Marshal(sl)
+}
 
 func NewSet[T comparable](sub []T) Set[T] {
 	newSet := make(Set[T])
