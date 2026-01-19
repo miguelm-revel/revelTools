@@ -18,6 +18,7 @@ func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 	if err := json.Unmarshal(bts, &raw); err != nil {
 		return err
 	}
+	*s = make(Set[T])
 	for _, it := range raw {
 		s.Add(it)
 	}
@@ -25,11 +26,15 @@ func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 }
 
 func (s *Set[T]) MarshalJSON() ([]byte, error) {
-	sl := make([]T, s.Len())
-	for i, element := range s.Iter2() {
-		sl[i] = element
+	if s != nil {
+		sl := make([]T, s.Len())
+		for i, element := range s.Iter2() {
+			sl[i] = element
+		}
+		return json.Marshal(sl)
+	} else {
+		return []byte("null"), nil
 	}
-	return json.Marshal(sl)
 }
 
 func NewSet[T comparable](sub []T) Set[T] {
