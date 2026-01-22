@@ -1,11 +1,11 @@
-package sync
+package syncx
 
 import "sync"
 
 // Barrier is a synchronization primitive that allows multiple goroutines
 // to block until all of them have reached a certain point.
 //
-// Internally, it wraps a sync.WaitGroup and provides Lock/Unlock semantics
+// Internally, it wraps a syncx.WaitGroup and provides Lock/Unlock semantics
 // to increment the number of participants and wait for all of them to finish.
 type Barrier struct{ *sync.WaitGroup }
 

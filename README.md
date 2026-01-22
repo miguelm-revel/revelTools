@@ -32,7 +32,7 @@ The `sync` package provides lightweight concurrency utilities.
 #### Example
 
 ```go
-import "github.com/miguelm-revel/revelTools/sync"
+import "github.com/miguelm-revel/revelTools/syncx"
 
 // Create a new barrier
 b := sync.NewBarrier()
@@ -62,7 +62,7 @@ for i := 0; i < 3; i++ {
 #### Example
 
 ```go
-import "github.com/miguelm-revel/revelTools/sync"
+import "github.com/miguelm-revel/revelTools/syncx"
 
 // Create a semaphore that allows up to 5 concurrent jobs
 sem := sync.NewSemaphore(5)

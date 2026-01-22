@@ -24,7 +24,7 @@ func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 	}
 	delim, ok := tok.(json.Delim)
 	if !ok || delim != '[' {
-		return fmt.Errorf("Set: expected JSON array")
+		return fmt.Errorf("set: expected JSON array")
 	}
 
 	if *s == nil {

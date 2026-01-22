@@ -3,7 +3,7 @@ package collections
 import "sync"
 
 type GoQueue[T any] struct {
-	queue    QueueLike[T]
+	queue    Queuer[T]
 	mutex    *sync.Mutex
 	nonEmpty *sync.Cond
 	nonFull  *sync.Cond
@@ -65,7 +65,7 @@ func (a *GoQueue[T]) Close() {
 	a.nonFull.Broadcast()
 }
 
-func NewGoQueue[T any](queue QueueLike[T], buffer int) *GoQueue[T] {
+func NewGoQueue[T any](queue Queuer[T], buffer int) *GoQueue[T] {
 	mutex := &sync.Mutex{}
 	return &GoQueue[T]{
 		queue:    queue,
@@ -77,7 +77,7 @@ func NewGoQueue[T any](queue QueueLike[T], buffer int) *GoQueue[T] {
 }
 
 type GoStack[T any] struct {
-	stack    StackLike[T]
+	stack    Stacker[T]
 	mutex    *sync.RWMutex
 	nonEmpty *sync.Cond
 	nonFull  *sync.Cond
@@ -145,7 +145,7 @@ func (a *GoStack[T]) Close() {
 	a.nonFull.Broadcast()
 }
 
-func NewGoStack[T any](stack StackLike[T], buffer int) *GoStack[T] {
+func NewGoStack[T any](stack Stacker[T], buffer int) *GoStack[T] {
 	mutex := &sync.RWMutex{}
 	return &GoStack[T]{
 		stack:    stack,

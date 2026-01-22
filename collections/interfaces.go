@@ -18,15 +18,15 @@ type Comparable interface {
 	Lte(Comparable) bool
 }
 
-// QueueLike represents a FIFO data structure.
-type QueueLike[T any] interface {
+// Queuer represents a FIFO data structure.
+type Queuer[T any] interface {
 	Enqueue(T)
 	Dequeue() T
 	Len() int
 }
 
-// StackLike represents a LIFO data structure.
-type StackLike[T any] interface {
+// Stacker represents a LIFO data structure.
+type Stacker[T any] interface {
 	Push(T)
 	Pop() T
 	Peek() T

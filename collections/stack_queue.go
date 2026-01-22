@@ -10,6 +10,14 @@ type Stack[T Comparable] struct {
 	dequeue *list.List
 }
 
+func NewStackFrom[T Comparable](items ...T) Stack[T] {
+	newStack := Stack[T]{}
+	for _, item := range items {
+		newStack.Push(item)
+	}
+	return newStack
+}
+
 func (s *Stack[V]) Iter() iter.Seq[V] {
 	return func(yield func(V) bool) {
 		for s.dequeue.Len() > 0 {
@@ -54,7 +62,7 @@ func (s *Stack[T]) Pop() T {
 	return el.Value.(T)
 }
 
-// Pek returns the top element of the stack without removing it.
+// Peek returns the top element of the stack without removing it.
 func (s *Stack[T]) Peek() T {
 	return s.dequeue.Back().Value.(T)
 }
