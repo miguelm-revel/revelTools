@@ -90,9 +90,11 @@ func (b *bkTree) search(term string, fuzziness int) bool {
 type BKTree struct {
 	root      *bkTree
 	Fuzziness int
+	len       int
 }
 
 func (b *BKTree) Add(term string) {
+	b.len++
 	q := &bkTree{
 		term:     term,
 		children: make(map[int]*bkTree),
@@ -137,9 +139,14 @@ func (b *bkTree) deleteExact(term string) bool {
 }
 
 func (b *BKTree) Del(term string) {
+	b.len--
 	if b.root != nil {
 		b.root.deleteExact(term)
 	}
+}
+
+func (b *BKTree) Len() int {
+	return b.len
 }
 
 func (b *BKTree) Iter() iter.Seq[string] {
@@ -193,6 +200,7 @@ func (b *BKTree) UnmarshalJSON(bts []byte) error {
 	}
 
 	_, err = dec.Token()
+	b.Fuzziness = 2
 	return err
 }
 
