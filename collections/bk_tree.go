@@ -1,5 +1,12 @@
 package collections
 
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"iter"
+)
+
 const (
 	MATCH    = 0
 	GAP      = 1
@@ -46,6 +53,21 @@ type bkTree struct {
 	term     string
 	children map[int]*bkTree
 	deleted  bool
+}
+
+func (b *bkTree) iter() iter.Seq[string] {
+	return func(yield func(string) bool) {
+		if !yield(b.term) {
+			return
+		}
+		for _, child := range b.children {
+			for el := range child.iter() {
+				if !yield(el) {
+					return
+				}
+			}
+		}
+	}
 }
 
 func (b *bkTree) search(term string, fuzziness int) bool {
@@ -118,4 +140,84 @@ func (b *BKTree) Del(term string) {
 	if b.root != nil {
 		b.root.deleteExact(term)
 	}
+}
+
+func (b *BKTree) Iter() iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for element := range b.root.iter() {
+			if !yield(element) {
+				return
+			}
+		}
+	}
+}
+
+func (b *BKTree) Iter2() iter.Seq2[int, string] {
+	return func(yield func(int, string) bool) {
+		idx := 0
+		for element := range b.root.iter() {
+			if !yield(idx, element) {
+				return
+			}
+			idx++
+		}
+	}
+}
+
+func (b *BKTree) UnmarshalJSON(bts []byte) error {
+	if bytes.Equal(bts, []byte("null")) {
+		return nil
+	}
+
+	dec := json.NewDecoder(bytes.NewReader(bts))
+
+	tok, err := dec.Token()
+	if err != nil {
+		return err
+	}
+	delim, ok := tok.(json.Delim)
+	if !ok || delim != '[' {
+		return fmt.Errorf("set: expected JSON array")
+	}
+
+	if b == nil {
+		*b = *new(BKTree)
+	}
+
+	for dec.More() {
+		var term string
+		if err = dec.Decode(&term); err != nil {
+			return err
+		}
+		b.Add(term)
+	}
+
+	_, err = dec.Token()
+	return err
+}
+
+func (b *BKTree) MarshalJSON() ([]byte, error) {
+	if b.root == nil {
+		return []byte("null"), nil
+	}
+
+	var buf bytes.Buffer
+	buf.WriteByte('[')
+
+	first := true
+	for v := range b.Iter() {
+		if !first {
+			buf.WriteByte(',')
+		}
+		first = false
+
+		s, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(s)
+	}
+
+	buf.WriteByte(']')
+	return buf.Bytes(), nil
 }
