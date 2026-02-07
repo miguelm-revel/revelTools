@@ -1,4 +1,4 @@
-package index
+package collections
 
 const (
 	MATCH    = 0
@@ -42,35 +42,38 @@ func score(seq1, seq2 string) int {
 	return nm[n][m]
 }
 
-type bkTree[T comparable] struct {
+type bkTree struct {
 	term     string
-	value    T
-	children map[int]*bkTree[T]
+	children map[int]*bkTree
+	deleted  bool
 }
 
-func (b *bkTree[T]) search(term string, fuzziness int, matches []T) {
+func (b *bkTree) search(term string, fuzziness int) bool {
 	d0 := score(b.term, term)
-	if d0 <= fuzziness {
-		matches = append(matches, b.value)
+	if d0 <= fuzziness && !b.deleted {
+		return true
 	}
 	low := d0 - fuzziness
 	high := d0 + fuzziness
 	for dist, node := range b.children {
 		if dist >= low && dist <= high {
-			node.search(term, fuzziness, matches)
+			if result := node.search(term, fuzziness); result {
+				return true
+			}
 		}
 	}
+	return false
 }
 
-type BKTree[T comparable] struct {
-	root *bkTree[T]
+type BKTree struct {
+	root      *bkTree
+	Fuzziness int
 }
 
-func (b *BKTree[T]) Insert(term string, value T) {
-	q := &bkTree[T]{
+func (b *BKTree) Add(term string) {
+	q := &bkTree{
 		term:     term,
-		value:    value,
-		children: make(map[int]*bkTree[T]),
+		children: make(map[int]*bkTree),
 	}
 	if b.root == nil {
 		b.root = q
@@ -91,8 +94,28 @@ func (b *BKTree[T]) Insert(term string, value T) {
 	}
 }
 
-func (b *BKTree[T]) Search(term string, fuzziness int) []T {
-	matches := make([]T, 0, 100)
-	b.root.search(term, fuzziness, matches)
-	return matches
+func (b *BKTree) Has(term string) bool {
+	return b.root.search(term, b.Fuzziness)
+}
+
+func (b *bkTree) deleteExact(term string) bool {
+	k := score(b.term, term)
+	if k == 0 {
+		if b.deleted {
+			return false
+		}
+		b.deleted = true
+		return true
+	}
+	child, ok := b.children[k]
+	if !ok {
+		return false
+	}
+	return child.deleteExact(term)
+}
+
+func (b *BKTree) Del(term string) {
+	if b.root != nil {
+		b.root.deleteExact(term)
+	}
 }

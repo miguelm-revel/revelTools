@@ -18,6 +18,12 @@ type Comparable interface {
 	Lte(Comparable) bool
 }
 
+type Setter[T any] interface {
+	Add(T)
+	Has(T) bool
+	Del(T)
+}
+
 // Queuer represents a FIFO data structure.
 type Queuer[T any] interface {
 	Enqueue(T)
