@@ -49,13 +49,17 @@ func score(seq1, seq2 string) int {
 	return nm[n][m]
 }
 
-type bkTree struct {
+type String interface {
+	~string
+}
+
+type bkTree[T String] struct {
 	term     string
-	children map[int]*bkTree
+	children map[int]*bkTree[T]
 	deleted  bool
 }
 
-func (b *bkTree) iter() iter.Seq[string] {
+func (b *bkTree[T]) iter() iter.Seq[string] {
 	return func(yield func(string) bool) {
 		if !yield(b.term) {
 			return
@@ -70,7 +74,7 @@ func (b *bkTree) iter() iter.Seq[string] {
 	}
 }
 
-func (b *bkTree) search(term string, fuzziness int) bool {
+func (b *bkTree[T]) search(term string, fuzziness int) bool {
 	d0 := score(b.term, term)
 	if d0 <= fuzziness && !b.deleted {
 		return true
@@ -87,17 +91,17 @@ func (b *bkTree) search(term string, fuzziness int) bool {
 	return false
 }
 
-type BKTree struct {
-	root      *bkTree
+type BKTree[T String] struct {
+	root      *bkTree[T]
 	Fuzziness int
 	len       int
 }
 
-func (b *BKTree) Add(term string) {
+func (b *BKTree[T]) Add(term string) {
 	b.len++
-	q := &bkTree{
+	q := &bkTree[T]{
 		term:     term,
-		children: make(map[int]*bkTree),
+		children: make(map[int]*bkTree[T]),
 	}
 	if b.root == nil {
 		b.root = q
@@ -118,11 +122,11 @@ func (b *BKTree) Add(term string) {
 	}
 }
 
-func (b *BKTree) Has(term string) bool {
+func (b *BKTree[T]) Has(term string) bool {
 	return b.root.search(term, b.Fuzziness)
 }
 
-func (b *bkTree) deleteExact(term string) bool {
+func (b *bkTree[T]) deleteExact(term string) bool {
 	k := score(b.term, term)
 	if k == 0 {
 		if b.deleted {
@@ -138,18 +142,18 @@ func (b *bkTree) deleteExact(term string) bool {
 	return child.deleteExact(term)
 }
 
-func (b *BKTree) Del(term string) {
+func (b *BKTree[T]) Del(term string) {
 	b.len--
 	if b.root != nil {
 		b.root.deleteExact(term)
 	}
 }
 
-func (b *BKTree) Len() int {
+func (b *BKTree[T]) Len() int {
 	return b.len
 }
 
-func (b *BKTree) Iter() iter.Seq[string] {
+func (b *BKTree[T]) Iter() iter.Seq[string] {
 	return func(yield func(string) bool) {
 		for element := range b.root.iter() {
 			if !yield(element) {
@@ -159,7 +163,7 @@ func (b *BKTree) Iter() iter.Seq[string] {
 	}
 }
 
-func (b *BKTree) Iter2() iter.Seq2[int, string] {
+func (b *BKTree[T]) Iter2() iter.Seq2[int, string] {
 	return func(yield func(int, string) bool) {
 		idx := 0
 		for element := range b.root.iter() {
@@ -171,7 +175,7 @@ func (b *BKTree) Iter2() iter.Seq2[int, string] {
 	}
 }
 
-func (b *BKTree) UnmarshalJSON(bts []byte) error {
+func (b *BKTree[T]) UnmarshalJSON(bts []byte) error {
 	if bytes.Equal(bts, []byte("null")) {
 		return nil
 	}
@@ -188,7 +192,7 @@ func (b *BKTree) UnmarshalJSON(bts []byte) error {
 	}
 
 	if b == nil {
-		*b = *new(BKTree)
+		*b = *new(BKTree[T])
 	}
 
 	for dec.More() {
@@ -204,7 +208,7 @@ func (b *BKTree) UnmarshalJSON(bts []byte) error {
 	return err
 }
 
-func (b *BKTree) MarshalJSON() ([]byte, error) {
+func (b *BKTree[T]) MarshalJSON() ([]byte, error) {
 	if b.root == nil {
 		return []byte("null"), nil
 	}
