@@ -98,6 +98,14 @@ type BKTree struct {
 	len       int
 }
 
+func NewBKTree(values []string) BKTree {
+	tree := BKTree{}
+	for _, value := range values {
+		tree.Add(value)
+	}
+	return tree
+}
+
 func (b *BKTree) Into() []string {
 	return slices.Collect(b.Iter())
 }
