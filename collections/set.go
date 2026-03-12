@@ -5,10 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"iter"
+	"slices"
 )
 
 // Set represents an unordered collection of unique elements.
 type Set[T comparable] map[T]struct{}
+
+func (s *Set[T]) Into() []T {
+	return slices.Collect(s.Iter())
+}
 
 func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 	if bytes.Equal(bts, []byte("null")) {
