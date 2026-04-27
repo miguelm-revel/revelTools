@@ -57,6 +57,7 @@ func (h *Heap[T]) Pop() any {
 	return x
 }
 
+// Peek returns the top-priority element without removing it.
 func (h *Heap[T]) Peek() T {
 	return h.heap[len(h.heap)-1]
 }
@@ -85,6 +86,7 @@ func (p *PriorityQueue[T]) Dequeue() T {
 	return t
 }
 
+// Len returns the number of elements in the priority queue.
 func (p *PriorityQueue[T]) Len() int {
 	return p.heap.Len()
 }

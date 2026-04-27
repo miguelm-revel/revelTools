@@ -18,6 +18,7 @@ type Comparable interface {
 	Lte(Comparable) bool
 }
 
+// Setter is implemented by any set-like collection that supports membership operations.
 type Setter[T any] interface {
 	Add(T)
 	Has(T) bool

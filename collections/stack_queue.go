@@ -10,6 +10,7 @@ type Stack[T Comparable] struct {
 	dequeue *list.List
 }
 
+// NewStackFrom creates a Stack pre-populated with the given items.
 func NewStackFrom[T Comparable](items ...T) Stack[T] {
 	newStack := Stack[T]{}
 	for _, item := range items {
@@ -18,6 +19,7 @@ func NewStackFrom[T Comparable](items ...T) Stack[T] {
 	return newStack
 }
 
+// Iter returns a consuming forward iterator that pops elements from the stack.
 func (s *Stack[V]) Iter() iter.Seq[V] {
 	return func(yield func(V) bool) {
 		for s.dequeue.Len() > 0 {
@@ -29,6 +31,7 @@ func (s *Stack[V]) Iter() iter.Seq[V] {
 	}
 }
 
+// Iter2 returns a consuming indexed iterator that pops elements from the stack.
 func (s *Stack[V]) Iter2() iter.Seq2[int, V] {
 	return func(yield func(int, V) bool) {
 		idx := 0
@@ -67,6 +70,7 @@ func (s *Stack[T]) Peek() T {
 	return s.dequeue.Back().Value.(T)
 }
 
+// Len returns the number of elements in the stack.
 func (s *Stack[T]) Len() int {
 	return s.dequeue.Len()
 }
@@ -96,10 +100,12 @@ func (c *Queue[T]) Dequeue() T {
 	return el.Value.(T)
 }
 
+// Len returns the number of elements in the queue.
 func (c *Queue[T]) Len() int {
 	return c.dequeue.Len()
 }
 
+// Iter returns a consuming forward iterator that dequeues elements from the queue.
 func (c *Queue[V]) Iter() iter.Seq[V] {
 	return func(yield func(V) bool) {
 		for c.dequeue.Len() > 0 {
@@ -111,6 +117,7 @@ func (c *Queue[V]) Iter() iter.Seq[V] {
 	}
 }
 
+// Iter2 returns a consuming indexed iterator that dequeues elements from the queue.
 func (c *Queue[V]) Iter2() iter.Seq2[int, V] {
 	return func(yield func(int, V) bool) {
 		idx := 0

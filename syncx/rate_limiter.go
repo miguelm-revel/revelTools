@@ -5,11 +5,16 @@ import (
 	"time"
 )
 
+// RateLimiter is a token-bucket rate limiter backed by a buffered channel.
+// Tokens are replenished at a steady interval derived from the configured rate and duration.
 type RateLimiter struct {
 	tokens chan struct{}
 	stop   chan struct{}
 }
 
+// NewRateLimiter creates a RateLimiter that allows rate events per the given duration.
+// The bucket is pre-filled to rate tokens and a background goroutine replenishes
+// one token per sub-interval until Stop is called.
 func NewRateLimiter(rate int, per time.Duration) *RateLimiter {
 	rl := &RateLimiter{
 		tokens: make(chan struct{}, rate),
@@ -41,6 +46,7 @@ func NewRateLimiter(rate int, per time.Duration) *RateLimiter {
 	return rl
 }
 
+// Allow reports whether a token is immediately available and, if so, consumes it.
 func (rl *RateLimiter) Allow() bool {
 	select {
 	case <-rl.tokens:
@@ -50,6 +56,8 @@ func (rl *RateLimiter) Allow() bool {
 	}
 }
 
+// Wait blocks until a token is available or ctx is cancelled.
+// Returns ctx.Err() if the context is done before a token becomes available.
 func (rl *RateLimiter) Wait(ctx context.Context) error {
 	select {
 	case <-rl.tokens:
@@ -59,4 +67,5 @@ func (rl *RateLimiter) Wait(ctx context.Context) error {
 	}
 }
 
+// Stop shuts down the background token-replenishment goroutine.
 func (rl *RateLimiter) Stop() { close(rl.stop) }

@@ -11,10 +11,13 @@ import (
 // Set represents an unordered collection of unique elements.
 type Set[T comparable] map[T]struct{}
 
+// Into returns all elements of the set as a slice. Order is not guaranteed.
 func (s *Set[T]) Into() []T {
 	return slices.Collect(s.Iter())
 }
 
+// UnmarshalJSON decodes a JSON array into the set, replacing any existing elements.
+// A JSON null value sets the receiver to nil.
 func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 	if bytes.Equal(bts, []byte("null")) {
 		*s = nil
@@ -52,6 +55,7 @@ func (s *Set[T]) UnmarshalJSON(bts []byte) error {
 	return err
 }
 
+// MarshalJSON encodes the set as a JSON array. A nil set is encoded as null.
 func (s *Set[T]) MarshalJSON() ([]byte, error) {
 	if s == nil || *s == nil {
 		return []byte("null"), nil
@@ -78,6 +82,7 @@ func (s *Set[T]) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// NewSet creates a Set pre-populated with the elements of sub. Duplicates are deduplicated.
 func NewSet[T comparable](sub []T) Set[T] {
 	newSet := make(Set[T])
 	for _, v := range sub {

@@ -5,11 +5,15 @@ import (
 	"math/rand/v2"
 )
 
+// BinomDist represents a Binomial(N, P) distribution.
+// N is the number of independent trials; P is the probability of success on each trial.
 type BinomDist struct {
 	N int
 	P float64
 }
 
+// Rand returns a random sample drawn via direct simulation of N Bernoulli trials.
+// Returns NaN for invalid parameters (N < 0 or P outside [0, 1]).
 func (b BinomDist) Rand() float64 {
 	if b.N < 0 || b.P < 0 || b.P > 1 {
 		return math.NaN()
@@ -23,6 +27,8 @@ func (b BinomDist) Rand() float64 {
 	return float64(k)
 }
 
+// PDF returns the probability mass P(X = k) for integer x = k.
+// Returns NaN for invalid parameters; 0 for non-integer or out-of-range x.
 func (b BinomDist) PDF(x float64) float64 {
 	if b.N < 0 || b.P < 0 || b.P > 1 {
 		return math.NaN()
@@ -52,6 +58,8 @@ func (b BinomDist) PDF(x float64) float64 {
 	return math.Exp(logC + float64(k)*math.Log(b.P) + float64(b.N-k)*math.Log(1.0-b.P))
 }
 
+// CDF returns the cumulative probability P(X <= x) by summing the PDF over 0..floor(x).
+// Returns NaN for invalid parameters.
 func (b BinomDist) CDF(x float64) float64 {
 	if b.N < 0 || b.P < 0 || b.P > 1 {
 		return math.NaN()

@@ -5,19 +5,19 @@ import (
 	"math/rand/v2"
 )
 
-/* =============================
-   Helpers: combinatoria, gamma, etc.
-=============================*/
-
+// logGamma returns the natural logarithm of the Gamma function at x.
 func logGamma(x float64) float64 {
 	lg, _ := math.Lgamma(x)
 	return lg
 }
 
+// logFactorial returns the natural logarithm of n! using the log-Gamma identity.
 func logFactorial(n int) float64 {
 	return logGamma(float64(n) + 1.0)
 }
 
+// logChoose returns the natural logarithm of the binomial coefficient C(n, k).
+// Returns -Inf for k < 0 or k > n.
 func logChoose(n, k int) float64 {
 	if k < 0 || k > n {
 		return math.Inf(-1)
@@ -25,11 +25,7 @@ func logChoose(n, k int) float64 {
 	return logFactorial(n) - logFactorial(k) - logFactorial(n-k)
 }
 
-/* -----------------------------
-   Gamma RNG: Marsaglia–Tsang
-   Devuelve Gamma(shape, scale=1)
-------------------------------*/
-
+// gammaRand returns a Gamma(shape, 1) random sample using the Marsaglia-Tsang method.
 func gammaRand(shape float64) float64 {
 	if shape <= 0 {
 		return math.NaN()
@@ -65,12 +61,8 @@ func gammaRand(shape float64) float64 {
 	}
 }
 
-/* -----------------------------
-   Regularized lower incomplete gamma:
-   P(a,x) = γ(a,x)/Γ(a)
-   Usada para CDF de Chi² y Poisson.
-------------------------------*/
-
+// regLowerGamma computes the regularized lower incomplete gamma function P(a, x) = γ(a,x)/Γ(a).
+// Used internally for the CDF of Chi-squared and Poisson distributions.
 func regLowerGamma(a, x float64) float64 {
 	if a <= 0 || x < 0 {
 		return math.NaN()
@@ -85,6 +77,7 @@ func regLowerGamma(a, x float64) float64 {
 	return 1.0 - gammaContFrac(a, x)
 }
 
+// gammaSeries evaluates the regularized lower incomplete gamma via the series expansion.
 func gammaSeries(a, x float64) float64 {
 	const itmax = 200
 	const eps = 3e-14
@@ -105,6 +98,7 @@ func gammaSeries(a, x float64) float64 {
 	return sum * math.Exp(-x+a*math.Log(x)-logGamma(a))
 }
 
+// gammaContFrac evaluates the regularized upper incomplete gamma via continued-fraction expansion.
 func gammaContFrac(a, x float64) float64 {
 	const itmax = 200
 	const eps = 3e-14
@@ -137,10 +131,7 @@ func gammaContFrac(a, x float64) float64 {
 	return math.Exp(-x+a*math.Log(x)-logGamma(a)) * h
 }
 
-/* -----------------------------
-   Poisson PTRS (Hörmann, 1993)
-------------------------------*/
-
+// poissonPTRS generates a Poisson(lambda) random variate using the PTRS algorithm (Hörmann, 1993).
 func poissonPTRS(lambda float64) int {
 	sqrtL := math.Sqrt(lambda)
 	logL := math.Log(lambda)

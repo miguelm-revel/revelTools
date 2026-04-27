@@ -92,12 +92,15 @@ func (b *bkTree) search(term string, fuzziness int) bool {
 	return false
 }
 
+// BKTree is a Burkhard-Keller tree for approximate string matching.
+// It supports fuzzy membership tests using edit distance, controlled by the Fuzziness field.
 type BKTree struct {
 	root      *bkTree
 	Fuzziness int
 	len       int
 }
 
+// NewBKTree creates a BKTree pre-populated with the given string values.
 func NewBKTree(values []string) BKTree {
 	tree := BKTree{}
 	for _, value := range values {
@@ -106,10 +109,12 @@ func NewBKTree(values []string) BKTree {
 	return tree
 }
 
+// Into returns all non-deleted terms in the tree as a slice.
 func (b *BKTree) Into() []string {
 	return slices.Collect(b.Iter())
 }
 
+// Add inserts a term into the tree. Duplicate terms are silently ignored.
 func (b *BKTree) Add(term string) {
 	b.len++
 	q := &bkTree{
@@ -135,6 +140,7 @@ func (b *BKTree) Add(term string) {
 	}
 }
 
+// Has reports whether term is present in the tree within the configured Fuzziness distance.
 func (b *BKTree) Has(term string) bool {
 	return b.root.search(term, b.Fuzziness)
 }
@@ -155,6 +161,7 @@ func (b *bkTree) deleteExact(term string) bool {
 	return child.deleteExact(term)
 }
 
+// Del soft-deletes term from the tree. Has no effect if the term is not present.
 func (b *BKTree) Del(term string) {
 	b.len--
 	if b.root != nil {
@@ -162,10 +169,12 @@ func (b *BKTree) Del(term string) {
 	}
 }
 
+// Len returns the number of terms tracked by the tree.
 func (b *BKTree) Len() int {
 	return b.len
 }
 
+// Iter returns a forward iterator over all non-deleted terms in the tree.
 func (b *BKTree) Iter() iter.Seq[string] {
 	return func(yield func(string) bool) {
 		for element := range b.root.iter() {
@@ -176,6 +185,7 @@ func (b *BKTree) Iter() iter.Seq[string] {
 	}
 }
 
+// Iter2 returns an indexed iterator over all non-deleted terms in the tree.
 func (b *BKTree) Iter2() iter.Seq2[int, string] {
 	return func(yield func(int, string) bool) {
 		idx := 0
@@ -188,6 +198,8 @@ func (b *BKTree) Iter2() iter.Seq2[int, string] {
 	}
 }
 
+// UnmarshalJSON populates the tree from a JSON array of strings.
+// Fuzziness is set to 2 after decoding.
 func (b *BKTree) UnmarshalJSON(bts []byte) error {
 	if bytes.Equal(bts, []byte("null")) {
 		return nil
@@ -221,6 +233,8 @@ func (b *BKTree) UnmarshalJSON(bts []byte) error {
 	return err
 }
 
+// MarshalJSON serializes the tree as a JSON array of strings.
+// Returns "null" if the tree is empty.
 func (b *BKTree) MarshalJSON() ([]byte, error) {
 	if b.root == nil {
 		return []byte("null"), nil
