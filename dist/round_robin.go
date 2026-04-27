@@ -10,6 +10,18 @@ type RoundRobinPool[T any] struct {
 	lock    sync.Mutex
 }
 
+func RoundRobinPoolFromConstructor[T any](constructor func() T, poolSize int) *RoundRobinPool[T] {
+	pool := make([]T, poolSize)
+	for i := 0; i < poolSize; i++ {
+		pool[i] = constructor()
+	}
+	return &RoundRobinPool[T]{
+		pool:    pool,
+		current: 0,
+		lock:    sync.Mutex{},
+	}
+}
+
 // Next returns the next item in round-robin order, cycling back to the first item after the last.
 func (r *RoundRobinPool[T]) Next() T {
 	r.lock.Lock()
