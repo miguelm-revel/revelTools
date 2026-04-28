@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"iter"
 	"slices"
+	"strings"
 )
 
 const (
@@ -95,9 +96,10 @@ func (b *bkTree) search(term string, fuzziness int) bool {
 // BKTree is a Burkhard-Keller tree for approximate string matching.
 // It supports fuzzy membership tests using edit distance, controlled by the Fuzziness field.
 type BKTree struct {
-	root      *bkTree
-	Fuzziness int
-	len       int
+	root       *bkTree
+	Fuzziness  int
+	IgnoreCase bool
+	len        int
 }
 
 // NewBKTree creates a BKTree pre-populated with the given string values.
@@ -116,6 +118,9 @@ func (b *BKTree) Into() []string {
 
 // Add inserts a term into the tree. Duplicate terms are silently ignored.
 func (b *BKTree) Add(term string) {
+	if b.IgnoreCase {
+		term = strings.ToLower(term)
+	}
 	b.len++
 	q := &bkTree{
 		term:     term,
@@ -142,6 +147,9 @@ func (b *BKTree) Add(term string) {
 
 // Has reports whether term is present in the tree within the configured Fuzziness distance.
 func (b *BKTree) Has(term string) bool {
+	if b.IgnoreCase {
+		term = strings.ToLower(term)
+	}
 	return b.root.search(term, b.Fuzziness)
 }
 
@@ -163,6 +171,9 @@ func (b *bkTree) deleteExact(term string) bool {
 
 // Del soft-deletes term from the tree. Has no effect if the term is not present.
 func (b *BKTree) Del(term string) {
+	if b.IgnoreCase {
+		term = strings.ToLower(term)
+	}
 	b.len--
 	if b.root != nil {
 		b.root.deleteExact(term)
