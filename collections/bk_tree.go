@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"iter"
+	"regexp"
 	"slices"
 )
 
@@ -77,6 +78,11 @@ func (b *bkTree) iter() iter.Seq[string] {
 
 func (b *bkTree) search(term string, fuzziness int) bool {
 	d0 := score(b.term, term)
+	for _, subTerm := range regexp.MustCompile(`[\w-]`).Split(term, -1) {
+		if s := score(b.term, subTerm); s < d0 {
+			d0 = s
+		}
+	}
 	if d0 <= fuzziness && !b.deleted {
 		return true
 	}
