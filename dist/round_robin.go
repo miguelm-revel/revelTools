@@ -23,7 +23,7 @@ func RoundRobinPoolFromConstructor[T any](constructor func() T, poolSize int) *R
 }
 
 // Next returns the next item in round-robin order, cycling back to the first item after the last.
-func (r *RoundRobinPool[T]) Next() T {
+func (r *RoundRobinPool[T]) Pick(_ string) T {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	item := r.pool[r.current]
